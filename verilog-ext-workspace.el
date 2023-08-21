@@ -211,24 +211,28 @@ With current-prefix or VERBOSE, dump output log."
          (num-files (length files))
          (num-files-processed 0)
          (log-file (file-name-concat verilog-ext-workspace-cache-dir "hierarchy.log"))
+         (file-hashes-ref verilog-ext-workspace-file-hashes-alist)
+         (file-hashes (verilog-ext-workspace-get-file-hashes files))
          msg progress flat-hierarchy data)
     (when verbose
       (delete-file log-file))
     (dolist (file files)
       (setq progress (/ (* num-files-processed 100) num-files))
-      (setq msg (format "(%0d%%) [Hierarchy parsing] Processing %s" progress file))
-      (when verbose
-        (append-to-file (concat msg "\n") nil log-file))
-      (message "%s" msg)
-      (setq data (cond ((eq verilog-ext-hierarchy-backend 'tree-sitter)
-                        (verilog-ext-hierarchy-tree-sitter-parse-file file))
-                       ((eq verilog-ext-hierarchy-backend 'builtin)
-                        (verilog-ext-hierarchy-builtin-parse-file file))
-                       (t
-                        (error "Wrong backend selected!"))))
-      (when data
-        (dolist (entry data)
-          (push entry flat-hierarchy)))
+      (unless (equal (gethash file file-hashes-ref) ; TODO: What to do if a file is removed/renamed, but it is still in `file-hashes-ref'?
+                     (gethash file file-hashes))    ; TODO: Maybe
+        (setq msg (format "(%0d%%) [Hierarchy parsing] Processing %s" progress file))
+        (when verbose
+          (append-to-file (concat msg "\n") nil log-file))
+        (message "%s" msg)
+        (setq data (cond ((eq verilog-ext-hierarchy-backend 'tree-sitter)
+                          (verilog-ext-hierarchy-tree-sitter-parse-file file))
+                         ((eq verilog-ext-hierarchy-backend 'builtin)
+                          (verilog-ext-hierarchy-builtin-parse-file file))
+                         (t
+                          (error "Wrong backend selected!"))))
+        (when data
+          (dolist (entry data)
+            (push entry flat-hierarchy))))
       (setq num-files-processed (1+ num-files-processed)))
     ;; Update cache
     (setq verilog-ext-workspace-cache-hierarchy verilog-ext-hierarchy-current-flat-hierarchy)
@@ -562,6 +566,28 @@ INFO: Enabling this feature will override the value of
   (verilog-ext-workspace-unserialize-cache 'typedefs)
   (setq verilog-ext-typedef-align-words-re verilog-ext-workspace-cache-typedefs)
   (setq verilog-align-typedef-regexp verilog-ext-workspace-cache-typedefs))
+
+
+
+;; TODO: Where to place this?
+(defvar verilog-ext-workspace-file-hashes-alist (make-hash-table :test #'equal)
+  "MD5 hashes of workspaces files.
+Used by workspace data collection to skip updating if a file has not changed.")
+
+(defun verilog-ext-workspace-get-file-hashes (&optional files)
+  "Get alist of workspace file MD5 hashes.
+Populate `verilog-ext-workspace-file-hashes-alist'."
+  (let ((table (make-hash-table :test #'equal))
+        contents-hash)
+    (mapc (lambda (file)
+            (with-temp-buffer
+              (insert-file-contents file)
+              (setq contents-hash (secure-hash 'md5 (buffer-substring-no-properties (point-min) (point-max))))
+              (puthash file contents-hash table)))
+          (or files
+              (verilog-ext-workspace-files :follow-symlinks)))
+    table))
+
 
 
 
