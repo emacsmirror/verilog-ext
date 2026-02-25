@@ -2,7 +2,7 @@
 # key: uc
 # --
 
-class ${1:class_name} extends ${2:uvm_component};
+class ${1:`(if (buffer-file-name) (file-name-nondirectory (file-name-sans-extension (buffer-file-name))) "class_name")`} extends ${2:uvm_component};
     \`uvm_component_utils($1)
 
     $0

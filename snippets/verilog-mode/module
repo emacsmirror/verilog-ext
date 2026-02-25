@@ -3,6 +3,9 @@
 # --
 
 module ${1:`(if (buffer-file-name) (file-name-nondirectory (file-name-sans-extension (buffer-file-name))) "module_name")`} (
+    input logic clk,
+    input logic rst,
+
     ${2:// Ports}
     );
 
