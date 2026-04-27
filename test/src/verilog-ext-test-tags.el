@@ -93,14 +93,14 @@
 (defun verilog-ext-test-tags-ts-defs-file-fn (file)
   (let ((file (file-relative-name file test-hdl-test-dir)))
     (verilog-ext-test-tags-setup)
-    (treesit-parser-create 'verilog)
+    (treesit-parser-create 'systemverilog)
     (verilog-ext-tags-table-push-defs-ts file)
     verilog-ext-tags-defs-current-file))
 
 (defun verilog-ext-test-tags-ts-refs-file-fn (file)
   (let ((file (file-relative-name file test-hdl-test-dir)))
     (verilog-ext-test-tags-setup)
-    (treesit-parser-create 'verilog)
+    (treesit-parser-create 'systemverilog)
     (verilog-ext-tags-table-push-refs-ts file)
     verilog-ext-tags-refs-current-file))
 

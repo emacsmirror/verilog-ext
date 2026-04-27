@@ -34,7 +34,7 @@
   "Verilog-ext hierarchy."
   :group 'verilog-ext)
 
-(defcustom verilog-ext-hierarchy-backend (if (and (treesit-available-p) (treesit-language-available-p 'verilog))
+(defcustom verilog-ext-hierarchy-backend (if (and (treesit-available-p) (treesit-language-available-p 'systemverilog))
                                              'tree-sitter
                                            'builtin)
   "Verilog-ext hierarchy extraction backend."
@@ -249,7 +249,7 @@ Used for hierarchy.el frontend to visit file of module at point."
       (cond (;; Builtin or vhier without tree-sitter support
              (or (eq verilog-ext-hierarchy-backend 'builtin)
                  (and (eq verilog-ext-hierarchy-backend 'vhier)
-                      (not (treesit-language-available-p 'verilog))))
+                      (not (treesit-language-available-p 'systemverilog))))
              (with-temp-buffer
                (insert-file-contents file)
                (verilog-ext-with-no-hooks
@@ -262,10 +262,10 @@ Used for hierarchy.el frontend to visit file of module at point."
             (;; Tree-sitter or vhier with tree-sitter support
              (or (eq verilog-ext-hierarchy-backend 'tree-sitter)
                  (and (eq verilog-ext-hierarchy-backend 'vhier)
-                      (treesit-language-available-p 'verilog)))
+                      (treesit-language-available-p 'systemverilog)))
              (with-temp-buffer
                (insert-file-contents file)
-               (treesit-parser-create 'verilog)
+               (treesit-parser-create 'systemverilog)
                (dolist (module-node (verilog-ts-nodes "\\<module_declaration\\>"))
                  (push `(,(verilog-ts--node-identifier-name module-node)
                          ,file
@@ -371,7 +371,7 @@ declaration."
   (let (module-nodes instances module-instances-alist)
     (with-temp-buffer
       (insert-file-contents file)
-      (treesit-parser-create 'verilog)
+      (treesit-parser-create 'systemverilog)
       (setq module-nodes (verilog-ts-module-declarations-nodes-current-buffer))
       (dolist (module-node module-nodes module-instances-alist)
         (setq instances nil)

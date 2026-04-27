@@ -918,7 +918,7 @@ Syntactic sugar for tree-sitter testbench generation."
 Make use of tree-sitter in `verilog-ts-mode'."
   (interactive "FSelect DUT from file:\nFOutput file: ")
   (unless (and (treesit-available-p)
-               (treesit-language-available-p 'verilog))
+               (treesit-language-available-p 'systemverilog))
     (error "Tree-sitter not available for `verilog-ts-mode'."))
   (when (file-exists-p outfile)
     (error "File %s exists" outfile))
@@ -1033,7 +1033,7 @@ endmodule // <tb_module_name>
   "Instantiate basic testbench from FILE's top module into OUTFILE."
   (interactive "FSelect DUT from file:\nFOutput file: ")
   (cond ((and (treesit-available-p)
-              (treesit-language-available-p 'verilog))
+              (treesit-language-available-p 'systemverilog))
          (verilog-ext-template-testbench-ts-simple-from-file file outfile))
         ((eq major-mode 'verilog-mode)
          (verilog-ext-template-testbench-auto-simple-from-file file outfile))
@@ -1046,7 +1046,7 @@ endmodule // <tb_module_name>
   (let* ((file (buffer-file-name))
          (outfile (file-name-concat (file-name-directory file) (concat "tb_" (file-name-nondirectory file)))))
     (cond ((and (treesit-available-p)
-                (treesit-language-available-p 'verilog))
+                (treesit-language-available-p 'systemverilog))
            (verilog-ext-template-testbench-ts-simple-from-file file outfile))
           ((eq major-mode 'verilog-mode)
            (verilog-ext-template-testbench-auto-simple-from-file file outfile))

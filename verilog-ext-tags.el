@@ -49,7 +49,7 @@
   "Verilog-ext tags."
   :group 'verilog-ext)
 
-(defcustom verilog-ext-tags-backend (if (and (treesit-available-p) (treesit-language-available-p 'verilog))
+(defcustom verilog-ext-tags-backend (if (and (treesit-available-p) (treesit-language-available-p 'systemverilog))
                                         'tree-sitter
                                       'builtin)
   "Verilog-ext tags extraction backend."
@@ -463,7 +463,7 @@ completion.")
 
 Update hash tables `verilog-ext-tags-defs-current-file' and
 `verilog-ext-tags-inst-current-file'."
-  (let* ((node (treesit-buffer-root-node 'verilog))
+  (let* ((node (treesit-buffer-root-node 'systemverilog))
          (tree (treesit-induce-sparse-tree
                 node
                 verilog-ext-tags-definitions-ts-re
@@ -638,7 +638,7 @@ Optional arg VERBOSE to display extra messages for debugging."
                      (verilog-ext-with-no-hooks ; Avoid spending time on any possible hooks, just on fontifying to get text properties
                        (verilog-ts-mode)
                        (font-lock-ensure))
-                   (treesit-parser-create 'verilog)) ; Not running `verilog-ts-mode' avoids unnecessary hooks for this task
+                   (treesit-parser-create 'systemverilog)) ; Not running `verilog-ts-mode' avoids unnecessary hooks for this task
                  (verilog-ext-tags-table-push-defs-ts file)  ; Populates `verilog-ext-tags-defs-current-file' and `verilog-ext-tags-inst-current-file'
                  (verilog-ext-tags-table-push-refs-ts file)) ; Populates `verilog-ext-tags-refs-current-file'
                 (;; Builtin
